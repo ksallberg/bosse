@@ -7,20 +7,20 @@
 #include <math.h>
 #include <unistd.h>
 
-static float rad = 0.01;
+void draw_spot(float x0, float yy0) {
 
-void draw_spot() {
-  float x = 0;
-  float y = 0;
-  glBegin(GL_TRIANGLES);
+  float side = 50.0f;
+  float x = side + x0;
+  float y = side + yy0;
+
+  glBegin(GL_POLYGON);
   glColor4f(1, 1, 0, 100);
-  glVertex3f(x, y-rad, 1);
-  glVertex3f(x + rad/1.5, y, 1);
-  glVertex3f(x, y + rad, 1);
-  glVertex3f(x, y+rad, 1);
-  glVertex3f(x-rad/1.5, y, 1);
-  glVertex3f(x, y-rad, 1);
+  glVertex3f(x+side, y+side, 0);
+  glVertex3f(x-side, y+side, 0);
+  glVertex3f(x-side, y-side, 0);
+  glVertex3f(x+side, y-side, 0);
   glEnd();
+  glFlush();
 }
 
 static void key_callback(GLFWwindow *window,
@@ -40,6 +40,8 @@ int main(int argc, char** argv) {
   GLFWwindow* window;
   int xpos = -1, ypos;
   int i = 0;
+  int windowWidth = 1280;
+  int windowHeight = 720;
 
   double previousTime = glfwGetTime();
   int frameCount = 0;
@@ -66,6 +68,12 @@ int main(int argc, char** argv) {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  glLoadIdentity();
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0.0f, windowWidth, windowHeight, 0.0f, 0.0f, 1.0f);
+
   while (!glfwWindowShouldClose(window)) {
     /* Render here */
     int width, height;
@@ -88,11 +96,9 @@ int main(int argc, char** argv) {
     #endif
 
     glfwGetFramebufferSize(window, &width, &height);
-    /* glViewport(0, 0, width, height); */
     glClear(GL_COLOR_BUFFER_BIT);
 
-    draw_spot();
-    rad += 0.001f;
+    draw_spot(100, 100);
 
     /* Swap front and back buffers */
     glfwSwapBuffers(window);
