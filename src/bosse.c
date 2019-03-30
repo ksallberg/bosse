@@ -7,6 +7,7 @@
 #define SIDE 10
 
 #include <GLFW/glfw3.h>
+#include <time.h>
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
@@ -14,21 +15,22 @@
 typedef struct Tile {
   float x;
   float y;
+  int color;
   /* float a; */
 } Tile;
 
 static Tile tiles[YAM][XAM];
 
-void draw_spot(float x0, float yy0, int color) {
+void draw_spot(Tile *tile) {
 
-  float x = SIDE + x0;
-  float y = SIDE + yy0;
+  float x = SIDE + tile->x;
+  float y = SIDE + tile->y;
 
   glBegin(GL_POLYGON);
-  if(color==0) {
-    glColor4f(0, 1, 0, .5f);
+  if(tile->color==0) {
+    glColor4f(0, 1, 0, 1.0f);
   } else {
-    glColor4f(0, 0, 1, .5f);
+    glColor4f(0, 0, 1, 1.0f);
   }
   glVertex3f(x+SIDE, y+SIDE, 0);
   glVertex3f(x-SIDE, y+SIDE, 0);
@@ -44,7 +46,11 @@ static void key_callback(GLFWwindow *window,
                          int action,
                          int mods) {
   if (key == GLFW_KEY_SPACE) {
-    printf("Hej hej space\n");
+    for(int i = 0; i < YAM; i ++) {
+      for(int j = 0; j < XAM; j ++) {
+        tiles[i][j].color=1;
+      }
+    }
   } else if (key == GLFW_KEY_ESCAPE) {
     printf("Hej hej inte space\n");
   }
@@ -60,6 +66,8 @@ int main(int argc, char** argv) {
 
   double previousTime = glfwGetTime();
   int frameCount = 0;
+
+  srand(time(NULL));
 
   /* Initialize the library */
   if ( !glfwInit() ) {
@@ -92,7 +100,8 @@ int main(int argc, char** argv) {
   /* Initialize tiles */
   for(int i = 0; i < YAM; i ++) {
     for(int j = 0; j < XAM; j ++) {
-      Tile t = {j * SIDE * 2, i * SIDE * 2};
+      int col = (i + j) % 2;
+      Tile t = {j * SIDE * 2, i * SIDE * 2, col};
       tiles[i][j] = t;
     }
   }
@@ -123,8 +132,11 @@ int main(int argc, char** argv) {
 
     for(int i = 0; i < YAM; i ++) {
       for(int j = 0; j < XAM; j ++) {
-        Tile t = tiles[i][j];
-        draw_spot(t.x, t.y, (i + j) % 2);
+        int r = rand() % 100;
+        if (r == 2) {
+          tiles[i][j].color = 0;
+        }
+        draw_spot(&tiles[i][j]);
       }
     }
 
