@@ -7,9 +7,9 @@
 #include <math.h>
 #include <unistd.h>
 
+static float rad = 0.01;
 
 void draw_spot() {
-  float rad = 0.2f;
   float x = 0;
   float y = 0;
   glBegin(GL_TRIANGLES);
@@ -70,7 +70,6 @@ int main(int argc, char** argv) {
     /* Render here */
     int width, height;
 
-
     // Measure speed
     double currentTime = glfwGetTime();
     frameCount++;
@@ -93,6 +92,7 @@ int main(int argc, char** argv) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     draw_spot();
+    rad += 0.001f;
 
     /* Swap front and back buffers */
     glfwSwapBuffers(window);
