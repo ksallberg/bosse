@@ -2,8 +2,8 @@
 #define GLFW_INCLUDE_GLU
 #define TRAIL 15
 
-#define XAM 25
-#define YAM 25
+#define XAM 50
+#define YAM 50
 #define SIDE 10
 
 #include <GLFW/glfw3.h>
@@ -23,8 +23,8 @@ static Tile tiles[YAM][XAM];
 
 void draw_spot(Tile *tile) {
 
-  float x = SIDE + tile->x;
-  float y = SIDE + tile->y;
+  float x = tile->x;
+  float y = tile->y;
 
   glBegin(GL_POLYGON);
   if(tile->color==0) {
@@ -33,9 +33,9 @@ void draw_spot(Tile *tile) {
     glColor4f(0, 0, 1, 1.0f);
   }
   glVertex3f(x+SIDE, y+SIDE, 0);
-  glVertex3f(x-SIDE, y+SIDE, 0);
-  glVertex3f(x-SIDE, y-SIDE, 0);
-  glVertex3f(x+SIDE, y-SIDE, 0);
+  glVertex3f(x, y+SIDE, 0);
+  glVertex3f(x, y, 0);
+  glVertex3f(x+SIDE, y, 0);
   glEnd();
   glFlush();
 }
@@ -61,8 +61,8 @@ int main(int argc, char** argv) {
   GLFWwindow* window;
   int xpos = -1, ypos;
   int i = 0;
-  int windowWidth = 1280;
-  int windowHeight = 720;
+  int windowWidth = XAM * SIDE;
+  int windowHeight = YAM * SIDE;
 
   double previousTime = glfwGetTime();
   int frameCount = 0;
@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
   }
 
   /* Create a windowed mode window and its OpenGL context */
-  window = glfwCreateWindow(1280, 720, "Hello World", NULL, NULL);
+  window = glfwCreateWindow(windowWidth, windowHeight, "tiles", NULL, NULL);
 
   if (!window) {
      glfwTerminate();
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
   for(int i = 0; i < YAM; i ++) {
     for(int j = 0; j < XAM; j ++) {
       int col = (i + j) % 2;
-      Tile t = {j * SIDE * 2, i * SIDE * 2, col};
+      Tile t = {j*SIDE,i * SIDE, col};
       tiles[i][j] = t;
     }
   }
