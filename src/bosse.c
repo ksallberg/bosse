@@ -7,7 +7,7 @@
 #include <math.h>
 #include <unistd.h>
 
-void draw_spot(float x0, float yy0) {
+void draw_spot(float x0, float yy0, int ) {
 
   float side = 50.0f;
   float x = side + x0;
@@ -98,7 +98,8 @@ int main(int argc, char** argv) {
     glfwGetFramebufferSize(window, &width, &height);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    draw_spot(100, 100);
+    draw_spot(1, 1);
+    draw_spot(102, 1);
 
     /* Swap front and back buffers */
     glfwSwapBuffers(window);
