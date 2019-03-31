@@ -40,6 +40,44 @@ void draw_spot(Tile *tile) {
   glFlush();
 }
 
+void mk_terrain1(int i, int j) {
+  int way = rand() % 50;
+  int way2 = way%4;
+
+  if(way == 4) {
+    return;
+  } else if(i < 0) {
+    return;
+  } else if(j < 0) {
+    return;
+  } else if(i >= XAM) {
+    return;
+  } else if(j >= YAM) {
+    return;
+  }
+
+  tiles[i][j].color = 0;
+
+  if(way2 == 3) {
+    mk_terrain1(i-1, j);
+  } else if(way2 == 2) {
+    mk_terrain1(i, j-1);
+  } else if(way2 == 1) {
+    mk_terrain1(i+1, j);
+  } else if(way2 == 0) {
+    mk_terrain1(i, j+1);
+  }
+}
+
+void mk_terrain() {
+  int i = YAM/2;
+  int j = XAM/2;
+  tiles[i][j].color = 0;
+  for(int x = 0; x < 100; x++) {
+    mk_terrain1(i, j);
+  }
+}
+
 static void key_callback(GLFWwindow *window,
                          int key,
                          int scancode,
@@ -51,6 +89,7 @@ static void key_callback(GLFWwindow *window,
         tiles[i][j].color=1;
       }
     }
+    mk_terrain();
   } else if (key == GLFW_KEY_ESCAPE) {
     printf("Hej hej inte space\n");
   }
@@ -99,11 +138,13 @@ int main(int argc, char** argv) {
   /* Initialize tiles */
   for(int i = 0; i < YAM; i ++) {
     for(int j = 0; j < XAM; j ++) {
-      int col = (i + j) % 2;
+      int col = 1;
       Tile t = {j*SIDE,i * SIDE, col};
       tiles[i][j] = t;
     }
   }
+
+  mk_terrain();
 
   while (!glfwWindowShouldClose(window)) {
     /* Render here */
@@ -115,9 +156,6 @@ int main(int argc, char** argv) {
     // If a second has passed.
     if ( currentTime - previousTime >= 1.0 )
     {
-        // Display the frame count here any way you want.
-        printf("FPS: %d\n", frameCount);
-
         frameCount = 0;
         previousTime = currentTime;
     }
@@ -127,10 +165,10 @@ int main(int argc, char** argv) {
 
     for(int i = 0; i < YAM; i ++) {
       for(int j = 0; j < XAM; j ++) {
-        int r = rand() % 100;
-        if (r == 2) {
-          tiles[i][j].color = 0;
-        }
+        /* int r = rand() % 100; */
+        /* if (r == 2) { */
+        /*   tiles[i][j].color = 0; */
+        /* } */
         draw_spot(&tiles[i][j]);
       }
     }
