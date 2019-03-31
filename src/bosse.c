@@ -5,6 +5,7 @@
 #define XAM 50
 #define YAM 50
 #define SIDE 10
+#define CITIES 4
 
 #include <GLFW/glfw3.h>
 #include <time.h>
@@ -29,6 +30,8 @@ void draw_spot(Tile *tile) {
   glBegin(GL_POLYGON);
   if(tile->color==0) {
     glColor4f(0, 1, 0, 1.0f);
+  } else if (tile->color==2) {
+    glColor4f(0, 0, 0, 1.0f);
   } else {
     glColor4f(0, 0, 1, 1.0f);
   }
@@ -72,9 +75,20 @@ void mk_terrain1(int i, int j) {
 void mk_terrain() {
   int i = YAM/2;
   int j = XAM/2;
+  int cit = 0;
   tiles[i][j].color = 0;
   for(int x = 0; x < 100; x++) {
     mk_terrain1(i, j);
+  }
+
+  while(cit < CITIES) {
+    int xtile = rand() % XAM;
+    int ytile = rand() % YAM;
+
+    if(tiles[ytile][xtile].color == 0) {
+      tiles[ytile][xtile].color = 2;
+      cit++;
+    }
   }
 }
 
