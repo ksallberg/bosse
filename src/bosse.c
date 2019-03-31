@@ -165,10 +165,6 @@ int main(int argc, char** argv) {
 
     for(int i = 0; i < YAM; i ++) {
       for(int j = 0; j < XAM; j ++) {
-        /* int r = rand() % 100; */
-        /* if (r == 2) { */
-        /*   tiles[i][j].color = 0; */
-        /* } */
         draw_spot(&tiles[i][j]);
       }
     }
