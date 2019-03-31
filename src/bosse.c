@@ -59,7 +59,6 @@ static void key_callback(GLFWwindow *window,
 int main(int argc, char** argv) {
 
   GLFWwindow* window;
-  int xpos = -1, ypos;
   int i = 0;
   int windowWidth = XAM * SIDE;
   int windowHeight = YAM * SIDE;
@@ -123,10 +122,6 @@ int main(int argc, char** argv) {
         previousTime = currentTime;
     }
 
-    #ifdef __APPLE__
-      usleep(14000);
-    #endif
-
     glfwGetFramebufferSize(window, &width, &height);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -145,12 +140,6 @@ int main(int argc, char** argv) {
 
     /* Poll for and process events */
     glfwPollEvents();
-
-    if(xpos == -1) {
-      glfwGetWindowPos(window, &xpos, &ypos);
-      glfwSetWindowPos(window, xpos+1, ypos);
-      glfwSetWindowPos(window, xpos, ypos);
-    }
   }
 
   glfwTerminate();
