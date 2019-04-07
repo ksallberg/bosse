@@ -2,12 +2,15 @@ UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S), Linux)
     comp := gcc
-    flags := -L /usr/local/lib/ -lGLEW -lglfw -lGL -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -pthread -ldl
+    flags := -L /usr/local/lib/ -lGLEW -lGLUT -lglfw -lGL -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -pthread -ldl
 endif
-
+ifeq ($(UNAME_S), FreeBSD)
+    comp := gcc
+    flags := -L /usr/local/lib/ -lglfw -lGLUT -lGL -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -pthread -ldl
+endif
 ifeq ($(UNAME_S), Darwin)
     comp := clang
-    flags := -lglfw -framework CoreVideo -framework OpenGL -framework IOKit -framework Cocoa -framework Carbon
+    flags := -lglfw -lGLUT -framework CoreVideo -framework OpenGL -framework IOKit -framework Cocoa -framework Carbon
 endif
 
 
