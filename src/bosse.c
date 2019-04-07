@@ -54,6 +54,48 @@ void draw_spot(Tile *tile) {
   glFlush();
 }
 
+void initialize() {
+  /* Initialize tiles */
+  for(int i = 0; i < YAM; i ++) {
+    for(int j = 0; j < XAM; j ++) {
+      int col = 1;
+      Tile t = {j*SIDE,i * SIDE, col};
+      tiles[i][j] = t;
+    }
+  }
+
+  /* When all tiles are created, we can start making refs between them */
+  for(int i = 0; i < YAM; i++) {
+    for(int j = 0; j < XAM; j ++) {
+      Tile *t = &tiles[i][j];
+
+      if(i-1 < 0) {
+        t->over = NULL;
+      } else {
+        t->over = &tiles[i-1][j];
+      }
+
+      if(i+1 >= YAM) {
+        t->below = NULL;
+      } else {
+        t->below = &tiles[i+1][j];
+      }
+
+      if(j-1 < 0) {
+        t->left = NULL;
+      } else {
+        t->left = &tiles[i][j-1];
+      }
+
+      if(j+1 >= XAM) {
+        t->right = NULL;
+      } else {
+        t->right = &tiles[i][j+1];
+      }
+    }
+  }
+}
+
 void mk_terrain1(int i, int j) {
   int way = rand() % 50;
   int way2 = way%4;
@@ -100,6 +142,33 @@ void mk_terrain() {
       tiles[ytile][xtile].color = 10+cit;
       cit++;
       tiles[ytile][xtile].city_id = cit;
+    }
+  }
+}
+
+void expand(Tile *rand_tile) {
+  if(rand_tile->over != NULL) {
+    if(rand_tile->over->color >= 10 && rand_tile->color==0) {
+      rand_tile->color=rand_tile->over->color;
+      rand_tile->city_id = rand_tile->over->city_id;
+    }
+  }
+  if(rand_tile->below != NULL) {
+    if(rand_tile->below->color >= 10 && rand_tile->color==0) {
+      rand_tile->color=rand_tile->below->color;
+      rand_tile->city_id = rand_tile->below->city_id;
+    }
+  }
+  if(rand_tile->left != NULL) {
+    if(rand_tile->left->color >= 10 && rand_tile->color==0) {
+      rand_tile->color=rand_tile->left->color;
+      rand_tile->city_id = rand_tile->left->city_id;
+    }
+  }
+  if(rand_tile->right != NULL) {
+    if(rand_tile->right->color >= 10 && rand_tile->color==0) {
+      rand_tile->color=rand_tile->right->color;
+      rand_tile->city_id = rand_tile->right->city_id;
     }
   }
 }
@@ -161,46 +230,7 @@ int main(int argc, char** argv) {
   glLoadIdentity();
   glOrtho(0.0f, windowWidth, windowHeight, 0.0f, 0.0f, 1.0f);
 
-  /* Initialize tiles */
-  for(int i = 0; i < YAM; i ++) {
-    for(int j = 0; j < XAM; j ++) {
-      int col = 1;
-      Tile t = {j*SIDE,i * SIDE, col};
-      tiles[i][j] = t;
-    }
-  }
-
-  /* When all tiles are created, we can start making refs between them */
-  for(int i = 0; i < YAM; i++) {
-    for(int j = 0; j < XAM; j ++) {
-      Tile *t = &tiles[i][j];
-
-      if(i-1 < 0) {
-        t->over = NULL;
-      } else {
-        t->over = &tiles[i-1][j];
-      }
-
-      if(i+1 >= YAM) {
-        t->below = NULL;
-      } else {
-        t->below = &tiles[i+1][j];
-      }
-
-      if(j-1 < 0) {
-        t->left = NULL;
-      } else {
-        t->left = &tiles[i][j-1];
-      }
-
-      if(j+1 >= XAM) {
-        t->right = NULL;
-      } else {
-        t->right = &tiles[i][j+1];
-      }
-    }
-  }
-
+  initialize();
   mk_terrain();
 
   while (!glfwWindowShouldClose(window)) {
@@ -211,40 +241,16 @@ int main(int argc, char** argv) {
     double currentTime = glfwGetTime();
     frameCount++;
     // If a second has passed.
-    if ( currentTime - previousTime >= 1.0 )
-    {
-        frameCount = 0;
-        previousTime = currentTime;
+    if ( currentTime - previousTime >= 1.0 ) {
+      frameCount = 0;
+      previousTime = currentTime;
     }
 
     glfwGetFramebufferSize(window, &width, &height);
     glClear(GL_COLOR_BUFFER_BIT);
 
     Tile *rand_tile = &tiles[rand() % YAM][rand() % XAM];
-    if(rand_tile->over != NULL) {
-      if(rand_tile->over->color >= 10 && rand_tile->color==0) {
-        rand_tile->color=rand_tile->over->color;
-        rand_tile->city_id = rand_tile->over->city_id;
-      }
-    }
-    if(rand_tile->below != NULL) {
-      if(rand_tile->below->color >= 10 && rand_tile->color==0) {
-        rand_tile->color=rand_tile->below->color;
-        rand_tile->city_id = rand_tile->below->city_id;
-      }
-    }
-    if(rand_tile->left != NULL) {
-      if(rand_tile->left->color >= 10 && rand_tile->color==0) {
-        rand_tile->color=rand_tile->left->color;
-        rand_tile->city_id = rand_tile->left->city_id;
-      }
-    }
-    if(rand_tile->right != NULL) {
-      if(rand_tile->right->color >= 10 && rand_tile->color==0) {
-        rand_tile->color=rand_tile->right->color;
-        rand_tile->city_id = rand_tile->right->city_id;
-      }
-    }
+    expand(rand_tile);
 
     for(int i = 0; i < YAM; i ++) {
       for(int j = 0; j < XAM; j ++) {
