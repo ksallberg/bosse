@@ -16,7 +16,12 @@
 typedef struct Tile {
   float x;
   float y;
-  int color;
+  int color; // 0 is grass, 1 is water, 2 is city
+  int city_id;
+  struct Tile *over;
+  struct Tile *below;
+  struct Tile *left;
+  struct Tile *right;
   /* float a; */
 } Tile;
 
@@ -29,9 +34,15 @@ void draw_spot(Tile *tile) {
 
   glBegin(GL_POLYGON);
   if(tile->color==0) {
-    glColor4f(0, 1, 0, 1.0f);
-  } else if (tile->color==2) {
+    glColor4f(0, 1, 0, 0.5f);
+  } else if (tile->color==10) {
     glColor4f(0, 0, 0, 1.0f);
+  } else if (tile->color==11) {
+    glColor4f(255, 0, 0, 1.0f);
+  } else if (tile->color==12) {
+    glColor4f(255, 255, 0, 1.0f);
+  } else if (tile->color==13) {
+    glColor4f(0, 255, 255, 1.0f);
   } else {
     glColor4f(0, 0, 1, 1.0f);
   }
@@ -86,8 +97,9 @@ void mk_terrain() {
     int ytile = rand() % YAM;
 
     if(tiles[ytile][xtile].color == 0) {
-      tiles[ytile][xtile].color = 2;
+      tiles[ytile][xtile].color = 10+cit;
       cit++;
+      tiles[ytile][xtile].city_id = cit;
     }
   }
 }
@@ -158,6 +170,37 @@ int main(int argc, char** argv) {
     }
   }
 
+  /* When all tiles are created, we can start making refs between them */
+  for(int i = 0; i < YAM; i++) {
+    for(int j = 0; j < XAM; j ++) {
+      Tile *t = &tiles[i][j];
+
+      if(i-1 < 0) {
+        t->over = NULL;
+      } else {
+        t->over = &tiles[i-1][j];
+      }
+
+      if(i+1 >= YAM) {
+        t->below = NULL;
+      } else {
+        t->below = &tiles[i+1][j];
+      }
+
+      if(j-1 < 0) {
+        t->left = NULL;
+      } else {
+        t->left = &tiles[i][j-1];
+      }
+
+      if(j+1 >= XAM) {
+        t->right = NULL;
+      } else {
+        t->right = &tiles[i][j+1];
+      }
+    }
+  }
+
   mk_terrain();
 
   while (!glfwWindowShouldClose(window)) {
@@ -176,6 +219,32 @@ int main(int argc, char** argv) {
 
     glfwGetFramebufferSize(window, &width, &height);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    Tile *rand_tile = &tiles[rand() % YAM][rand() % XAM];
+    if(rand_tile->over != NULL) {
+      if(rand_tile->over->color >= 10 && rand_tile->color==0) {
+        rand_tile->color=rand_tile->over->color;
+        rand_tile->city_id = rand_tile->over->city_id;
+      }
+    }
+    if(rand_tile->below != NULL) {
+      if(rand_tile->below->color >= 10 && rand_tile->color==0) {
+        rand_tile->color=rand_tile->below->color;
+        rand_tile->city_id = rand_tile->below->city_id;
+      }
+    }
+    if(rand_tile->left != NULL) {
+      if(rand_tile->left->color >= 10 && rand_tile->color==0) {
+        rand_tile->color=rand_tile->left->color;
+        rand_tile->city_id = rand_tile->left->city_id;
+      }
+    }
+    if(rand_tile->right != NULL) {
+      if(rand_tile->right->color >= 10 && rand_tile->color==0) {
+        rand_tile->color=rand_tile->right->color;
+        rand_tile->city_id = rand_tile->right->city_id;
+      }
+    }
 
     for(int i = 0; i < YAM; i ++) {
       for(int j = 0; j < XAM; j ++) {
