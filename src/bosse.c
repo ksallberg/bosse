@@ -186,7 +186,22 @@ static void key_callback(GLFWwindow *window,
     }
     mk_terrain();
   } else if (key == GLFW_KEY_ESCAPE) {
-    printf("Hej hej inte space\n");
+    int cit = 1;
+    int acc = 0;
+    int i, j = 0;
+    while(cit <= CITIES) {
+      for(int i = 0; i < YAM; i ++) {
+        for(int j = 0; j < XAM; j ++) {
+          if(tiles[i][j].city_id == cit) {
+            acc ++;
+          }
+        }
+      }
+      printf("City #%d has %d tiles.\n", cit, acc);
+      cit ++;
+      acc = 0;
+    }
+    printf("_______________\n");
   }
 }
 
