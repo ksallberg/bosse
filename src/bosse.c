@@ -2,12 +2,13 @@
 #define GLFW_INCLUDE_GLU
 #define GL_SILENCE_DEPRECATION
 
-#define XAM 90
-#define YAM 90
+#define XAM 70
+#define YAM 70
 #define SIDE 10
 #define CITIES 7
 
 #define IS_CAPITAL 1
+#define IS_FRIENDLY 1 << 2
 #define IS_WAR 2
 #define GREEN 0
 #define BLUE 1
@@ -84,7 +85,13 @@ void draw_spot(Tile *tile) {
   if ((tile->flags & IS_CAPITAL) == IS_CAPITAL) {
     glLineWidth(1);
     glBegin(GL_LINES);
-    glColor3f(.0f, .0f, .0f);
+
+    if((tile->flags & IS_FRIENDLY) == IS_FRIENDLY) {
+      glColor3f(.0f, 1.0f, .0f);
+    } else {
+      glColor3f(1.0f, .0f, .0f);
+    }
+
     glVertex3f(x+SIDE, y+SIDE, 0);
     glVertex3f(x, y+SIDE, 0);
     glVertex3f(x, y, 0);
@@ -282,6 +289,9 @@ void mk_terrain() {
       cit++;
       tiles[ytile][xtile].city_id = cit;
       tiles[ytile][xtile].flags |= IS_CAPITAL;
+      if(rand()%2 == 0) {
+        tiles[ytile][xtile].flags |= IS_FRIENDLY;
+      }
     }
   }
 }
@@ -319,7 +329,13 @@ int create_rel(Tile *tile) {
     }
     // otherwise, create a relation
     Relation r = {tile, capitals[rand_cit]};
-    r.type = rand() % 2;
+    int friendly1 = (capitals[rand_cit]->flags & IS_FRIENDLY) == IS_FRIENDLY;
+    int friendly2 = (tile->flags & IS_FRIENDLY) == IS_FRIENDLY;
+    if(friendly1 && friendly2) {
+      r.type = 0;
+    } else {
+      r.type = rand() % 2;
+    }
     relations[next_rel] = r;
     next_rel ++;
     return 1;
@@ -387,7 +403,7 @@ int expand1(Tile *rand_tile, Tile *compare) {
             }
           }
         } else {
-          if((compare->flags & IS_CAPITAL) == 0) {
+          if(cap1size > 5 && (compare->flags & IS_CAPITAL) == 0) {
             compare->color = rand_tile->color;
             compare->city_id = rand_tile->city_id;
             return 1;
