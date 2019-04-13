@@ -359,7 +359,7 @@ void crumble() {
     }
 
     int acc = cnt_col(capitals[i]->color);
-    if(acc >= 500) {
+    if(acc >= 400) {
       int col = capitals[i]->color;
       int y = 0;
       int x = 0;
