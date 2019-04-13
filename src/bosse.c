@@ -449,7 +449,7 @@ int war() {
   // for each bad relation
   for(int i = 0; i < next_rel; i ++) {
     if(relations[i].type == 1) {
-      int chance = rand() % 100;
+      int chance = rand() % 1000;
       if(chance == 3) {
         relations[i].type = 2;
         return 1;
