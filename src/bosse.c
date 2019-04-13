@@ -1,6 +1,6 @@
 #define GLFW_INCLUDE_GLCOREARB
 #define GLFW_INCLUDE_GLU
-#define TRAIL 15
+#define GL_SILENCE_DEPRECATION
 
 #define XAM 90
 #define YAM 90
@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <unistd.h>
+#include <stdio.h>
 
 typedef struct Tile {
   float x;
@@ -43,7 +44,6 @@ static Tile tiles[YAM][XAM];
 static Relation relations[100];
 static Tile *capitals[CITIES];
 extern int next_rel = 0;
-extern int slower=0;
 
 void draw_spot(Tile *tile) {
   if(tile->color == BLUE) {
@@ -81,7 +81,7 @@ void draw_spot(Tile *tile) {
   glFlush();
 
   // draw a box around the capital
-  if (tile->flags & IS_CAPITAL == IS_CAPITAL) {
+  if ((tile->flags & IS_CAPITAL) == IS_CAPITAL) {
     glLineWidth(1);
     glBegin(GL_LINES);
     glColor3f(.0f, .0f, .0f);
@@ -286,9 +286,21 @@ void mk_terrain() {
   }
 }
 
+int cnt_col(int col_id) {
+  int acc = 0;
+  for(int i = 0; i < YAM; i ++) {
+    for(int j = 0; j < XAM; j ++) {
+      if(tiles[i][j].color == col_id) {
+        acc ++;
+      }
+    }
+  }
+  return acc;
+}
+
 int create_rel(Tile *tile) {
   int rand_cit = rand() % CITIES;
-  if(tile->flags & IS_CAPITAL == IS_CAPITAL) {
+  if((tile->flags & IS_CAPITAL) == IS_CAPITAL) {
     // If the capital has only one tile, it is not allowed
     int num_tiles = cnt_col(tile->color);
     int num_tiles2 = cnt_col(capitals[rand_cit]->color);
@@ -342,20 +354,8 @@ Tile *capital_of(Tile *t) {
       return capitals[i];
     }
   }
-  printf("SKA INTE KOMMA HIT!\n");
+  /* printf("SKA INTE KOMMA HIT!\n"); */
   return NULL;
-}
-
-int cnt_col(int col_id) {
-  int acc = 0;
-  for(int i = 0; i < YAM; i ++) {
-    for(int j = 0; j < XAM; j ++) {
-      if(tiles[i][j].color == col_id) {
-        acc ++;
-      }
-    }
-  }
-  return acc;
 }
 
 // compare is the city that we compare the random tile
@@ -373,12 +373,23 @@ int expand1(Tile *rand_tile, Tile *compare) {
       Tile *cap1 = capital_of(rand_tile);
       Tile *cap2 = capital_of(compare);
       if(is_war(cap1, cap2)) {
+
+
+        int freak = rand() % 2;
         int cap1size = cnt_col(rand_tile->color);
         int cap2size = cnt_col(compare->color);
-        if(cap1size < cap2size) {
-          if((rand_tile->flags & IS_CAPITAL) == 0) {
-            rand_tile->color = compare->color;
-            rand_tile->city_id = compare->city_id;
+        if(freak == 0) {
+          if(cap1size < cap2size) {
+            if((rand_tile->flags & IS_CAPITAL) == 0) {
+              rand_tile->color = compare->color;
+              rand_tile->city_id = compare->city_id;
+              return 1;
+            }
+          }
+        } else {
+          if((compare->flags & IS_CAPITAL) == 0) {
+            compare->color = rand_tile->color;
+            compare->city_id = rand_tile->city_id;
             return 1;
           }
         }
@@ -447,6 +458,7 @@ int main(int argc, char** argv) {
   double previousTime = glfwGetTime();
 
   srand(time(NULL));
+  next_rel = 0;
 
   /* Initialize the library */
   if ( !glfwInit() ) {
@@ -531,10 +543,6 @@ int main(int argc, char** argv) {
 
     /* Poll for and process events */
     glfwPollEvents();
-
-    if(slower==1) {
-      sleep(1);
-    }
   }
 
   glfwTerminate();
