@@ -357,8 +357,11 @@ void change_rels() {
     } else {
       int friendly1 = (relations[i].to->flags & IS_FRIENDLY) == IS_FRIENDLY;
       int friendly2 = (relations[i].from->flags & IS_FRIENDLY) == IS_FRIENDLY;
-      if(!friendly1 || !friendly2) {
-        relations[i].type = 1;
+      int chance = rand() % 1000;
+      if(chance == 1) {
+        if(!friendly1 || !friendly2) {
+          relations[i].type = rand() % 2;
+        }
       }
     }
   }
