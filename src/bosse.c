@@ -347,6 +347,36 @@ int create_rel(Tile *tile) {
   return 0;
 }
 
+void crumble() {
+  for(int i = 0; i < CITIES; i++) {
+
+    if((capitals[i]->flags & IS_FRIENDLY) == IS_FRIENDLY) {
+      if(rand() % 10000 == 100) {
+        // friendly country only crumbles once in 10000 turns
+      } else {
+        continue;
+      }
+    }
+
+    int acc = cnt_col(capitals[i]->color);
+    if(acc >= 500) {
+      int col = capitals[i]->color;
+      int y = 0;
+      int x = 0;
+      for(y = 0; y < YAM; y++) {
+        for(x = 0; x < XAM; x++) {
+          if((tiles[y][x].flags & IS_CAPITAL) == IS_CAPITAL) {
+            continue;
+          }
+          if(tiles[y][x].color == capitals[i]->color) {
+            tiles[y][x].color = 0;
+          }
+        }
+      }
+    }
+  }
+}
+
 void change_rels() {
   for(int i = 0; i < next_rel; i ++) {
     if(relations[i].type == IS_WAR) {
@@ -368,7 +398,7 @@ void change_rels() {
 }
 
 void wipe_rels() {
-  int chance = rand() % 1000;
+  int chance = rand() % 10000;
   if(chance == 555) {
     next_rel = 0;
   }
@@ -543,7 +573,8 @@ int main(int argc, char** argv) {
     create_rel(rand_tile);
     war();
     change_rels();
-    /* wipe_rels(); */
+    crumble();
+    wipe_rels();
 
     if(FAST == 1) {
       int exp = expand(rand_tile);
