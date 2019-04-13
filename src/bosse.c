@@ -9,7 +9,11 @@
 
 #define IS_CAPITAL 1
 #define IS_FRIENDLY 1 << 2
+
+#define IS_GOOD 0
+#define IS_BAD 1
 #define IS_WAR 2
+
 #define GREEN 0
 #define BLUE 1
 
@@ -38,7 +42,7 @@ typedef struct Tile {
 typedef struct Relation {
   struct Tile *from;
   struct Tile *to;
-  int type;
+  int type; // IS_GOOD=0, IS_BAD=1, IS_WAR=2
 } Relation;
 
 static Tile tiles[YAM][XAM];
@@ -343,6 +347,23 @@ int create_rel(Tile *tile) {
   return 0;
 }
 
+void change_rels() {
+  for(int i = 0; i < next_rel; i ++) {
+    if(relations[i].type == IS_WAR) {
+      int chance = rand() % 1000;
+      if(chance == 1) {
+        relations[i].type = rand() % 2;
+      }
+    } else {
+      int friendly1 = (relations[i].to->flags & IS_FRIENDLY) == IS_FRIENDLY;
+      int friendly2 = (relations[i].from->flags & IS_FRIENDLY) == IS_FRIENDLY;
+      if(!friendly1 || !friendly2) {
+        relations[i].type = 1;
+      }
+    }
+  }
+}
+
 void wipe_rels() {
   int chance = rand() % 1000;
   if(chance == 555) {
@@ -383,14 +404,11 @@ int expand1(Tile *rand_tile, Tile *compare) {
       rand_tile->color=compare->color;
       return 1;
     }
-
     if(rand_tile->color >= 10 && compare->color >= 10) {
       // war logic
       Tile *cap1 = capital_of(rand_tile);
       Tile *cap2 = capital_of(compare);
       if(is_war(cap1, cap2)) {
-
-
         int freak = rand() % 2;
         int cap1size = cnt_col(rand_tile->color);
         int cap2size = cnt_col(compare->color);
@@ -521,7 +539,8 @@ int main(int argc, char** argv) {
     }
     create_rel(rand_tile);
     war();
-    wipe_rels();
+    change_rels();
+    /* wipe_rels(); */
 
     if(FAST == 1) {
       int exp = expand(rand_tile);
